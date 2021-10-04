@@ -1,6 +1,5 @@
 import datetime
 import logging
-import random
 
 from peewee import *
 
