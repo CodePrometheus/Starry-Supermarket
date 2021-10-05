@@ -36,24 +36,24 @@ message IdRequest {
 }
 
 message CreateUserInfo {
-    string nickName = 1;
+    string nickname = 1;
     string password = 2;
     string mobile = 3;
 }
 
 message UpdateUserInfo {
     int32 id = 1;
-    string nickName = 2;
+    string nickname = 2;
     string gender = 3;
-    uint64 birthDay = 4;
+    uint64 birthday = 4;
 }
 
 message UserInfoResponse {
     int32 id = 1;
     string password = 2;
     string mobile = 3;
-    string nickName = 4;
-    uint64 birthDay = 5;
+    string nickname = 4;
+    uint64 birthday = 5;
     string gender = 6;
     int32 role = 7;
 }

@@ -20,16 +20,16 @@ class UserServicer(user_pb2_grpc.UserServicer):
         user_info_rsp = user_pb2.UserInfoResponse()
 
         user_info_rsp.id = user.id
-        user_info_rsp.passWord = user.password
+        user_info_rsp.password = user.password
         user_info_rsp.mobile = user.mobile
         user_info_rsp.role = user.role
 
         if user.nick_name:
-            user_info_rsp.nickName = user.nick_name
+            user_info_rsp.nickname = user.nick_name
         if user.gender:
             user_info_rsp.gender = user.gender
         if user.birthday:
-            user_info_rsp.birthDay = int(time.mktime(user.birthday.timetuple()))
+            user_info_rsp.birthday = int(time.mktime(user.birthday.timetuple()))
 
         return user_info_rsp
 
@@ -75,7 +75,6 @@ class UserServicer(user_pb2_grpc.UserServicer):
         try:
             user = User.get(User.mobile == request.mobile)
             return self.convert_user_to_rsp(user)
-
         except DoesNotExist as e:
             logger.error(e)
             context.set_code(grpc.StatusCode.NOT_FOUND)
@@ -95,9 +94,9 @@ class UserServicer(user_pb2_grpc.UserServicer):
             pass
 
         user = User()
-        user.nick_name = request.nickName
+        user.nick_name = request.nickname
         user.mobile = request.mobile
-        user.password = pbkdf2_sha256.hash(request.passWord)
+        user.password = pbkdf2_sha256.hash(request.password)
         user.save()
 
         return self.convert_user_to_rsp(user)
@@ -107,9 +106,11 @@ class UserServicer(user_pb2_grpc.UserServicer):
         # 更新用户
         try:
             user = User.get(User.id == request.id)
-            user.nick_name = request.nickName
+            user.nick_name = request.nickname
             user.gender = request.gender
-            user.birthday = date.fromtimestamp(request.birthDay)
+            user.birthday = date.fromtimestamp(request.birthday)
+            print(request.birthday)
+            print(user.birthday)
             user.save()
             return empty_pb2.Empty()
         except DoesNotExist:
@@ -118,5 +119,5 @@ class UserServicer(user_pb2_grpc.UserServicer):
             return user_pb2.UserInfoResponse()
 
     @logger.catch
-    def CheckPassWord(self, request: user_pb2.PasswordCheckInfo, context):
+    def CheckPassword(self, request: user_pb2.PasswordCheckInfo):
         return user_pb2.CheckResponse(success=pbkdf2_sha256.verify(request.password, request.encryptedPassword))
