@@ -1,0 +1,6 @@
+name: 'user-api'
+
+port: 3000
+user-service:
+  host: 'localhost'
+  port: 9000

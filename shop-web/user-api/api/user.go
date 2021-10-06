@@ -2,34 +2,34 @@ package api
 
 import (
 	"context"
-	"fmt"
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
-	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"net/http"
+	"shop-web/user-api/forms"
+	"shop-web/user-api/global"
 	"shop-web/user-api/global/reponse"
 	"shop-web/user-api/proto"
+	"strconv"
+	"strings"
 	"time"
 )
 
 func GetUserList(ctx *gin.Context) {
-	ip := "localhost"
-	port := 9000
-	userConnection, err := grpc.Dial(fmt.Sprintf("%s:%d", ip, port), grpc.WithInsecure())
-	if err != nil {
-		zap.S().Errorw("[GetUserList] 连接 [用户服务失败]",
-			"msg", err.Error())
-	}
-	// 生成grpc的client并调用接口
-	userServiceClient := proto.NewUserClient(userConnection)
-	rsp, err := userServiceClient.GetUserList(context.Background(), &proto.PageInfo{
-		Pn:    0,
-		PSize: 0,
+	// 转换
+	pn := ctx.DefaultQuery("pn", "0")
+	pnInt, _ := strconv.Atoi(pn)
+	pSize := ctx.DefaultQuery("pSize", "10")
+	pSizeInt, _ := strconv.Atoi(pSize)
+	rsp, err := global.UserServiceClient.GetUserList(context.Background(), &proto.PageInfo{
+		Pn:    uint32(pnInt),
+		PSize: uint32(pSizeInt),
 	})
+
 	if err != nil {
-		zap.S().Errorw("[GetUserList] 查询 [用户 列表] 失败")
+		zap.S().Errorw("[GetUserList] 查询 [用户列表] 失败")
 		HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
@@ -47,8 +47,75 @@ func GetUserList(ctx *gin.Context) {
 		res = append(res, user)
 	}
 	ctx.JSON(http.StatusOK, res)
+}
 
-	zap.S().Debug("获取用户列表页")
+func Login(c *gin.Context) {
+	loginForm := forms.LoginForm{}
+	if err := c.ShouldBindJSON(&loginForm); err != nil {
+		HandleFormError(c, err)
+		return
+	}
+
+	// login
+	if res, err := global.UserServiceClient.GetUserByMobile(context.Background(), &proto.MobileRequest{
+		Mobile: loginForm.Mobile,
+	}); err != nil {
+		if e, ok := status.FromError(err); ok {
+			switch e.Code() {
+			case codes.NotFound:
+				c.JSON(http.StatusBadRequest, map[string]string{
+					"msg": "该用户不存在",
+				})
+			default:
+				c.JSON(http.StatusInternalServerError, map[string]string{
+					"msg": "登录失败",
+				})
+			}
+			return
+		}
+	} else {
+		// 查询到对应的用户，校验密码
+		if _, pasErr := global.UserServiceClient.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
+			Password:          loginForm.Password,
+			EncryptedPassword: res.Password,
+		}); pasErr != nil {
+			c.JSON(http.StatusInternalServerError, map[string]string{
+				"password": "密码错误",
+			})
+		} else {
+			c.JSON(http.StatusOK, map[string]string{
+				"msg": "登录成功",
+			})
+		}
+		return
+	}
+
+}
+
+func Register(c *gin.Context) {
+
+}
+
+func HandleFormError(c *gin.Context, error error) {
+	// 拦截表单错误
+	err, ok := error.(validator.ValidationErrors)
+	if !ok {
+		c.JSON(http.StatusOK, gin.H{
+			"msg": error.Error(),
+		})
+	}
+	c.JSON(http.StatusBadRequest, gin.H{
+		"error": removeTopStruct(err.Translate(global.Trans)),
+	})
+	return
+}
+
+func removeTopStruct(fileds map[string]string) map[string]string {
+	res := map[string]string{}
+	for field, err := range fileds {
+		res[field[strings.Index(field, ".")+1:]] = err
+	}
+	return res
 }
 
 func HandleGrpcErrorToHttp(err error, c *gin.Context) {
@@ -70,7 +137,7 @@ func HandleGrpcErrorToHttp(err error, c *gin.Context) {
 				})
 			case codes.Unavailable:
 				c.JSON(http.StatusInternalServerError, gin.H{
-					"msg": "用户服务不可错误",
+					"msg": "用户服务不可用",
 				})
 			default:
 				c.JSON(http.StatusInternalServerError, gin.H{

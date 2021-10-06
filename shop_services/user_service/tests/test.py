@@ -42,6 +42,7 @@ class UserTest:
 
 if __name__ == '__main__':
     user = UserTest()
+    user.user_list()
     # user.create_user("starry", "12345678901", "admin")
     # user.get_user_by_id(19)
-    user.update_user(19, nickname="admin", gender="1", birthday=1641319300)
+    # user.update_user(19, nickname="admin", gender="1", birthday=1641319300)

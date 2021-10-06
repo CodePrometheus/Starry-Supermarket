@@ -1,0 +1,6 @@
+name: 'zzStar'
+port: 9000
+
+mysql:
+  host: 'localhost'
+  port: 3306
