@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-playground/validator/v10"
 	"go.uber.org/zap"
@@ -11,13 +12,21 @@ import (
 	"shop-web/user-api/forms"
 	"shop-web/user-api/global"
 	"shop-web/user-api/global/reponse"
+	"shop-web/user-api/middlewares"
+	"shop-web/user-api/models"
 	"shop-web/user-api/proto"
+	"shop-web/user-api/utils"
 	"strconv"
 	"strings"
 	"time"
 )
 
 func GetUserList(ctx *gin.Context) {
+	// login
+	claims, _ := ctx.Get("claims")
+	currentUser := claims.(*models.JwtClaims)
+	zap.S().Infof("访问用户: %d", currentUser.Id)
+
 	// 转换
 	pn := ctx.DefaultQuery("pn", "0")
 	pnInt, _ := strconv.Atoi(pn)
@@ -57,7 +66,7 @@ func Login(c *gin.Context) {
 	}
 
 	// login
-	if res, err := global.UserServiceClient.GetUserByMobile(context.Background(), &proto.MobileRequest{
+	if rsp, err := global.UserServiceClient.GetUserByMobile(context.Background(), &proto.MobileRequest{
 		Mobile: loginForm.Mobile,
 	}); err != nil {
 		if e, ok := status.FromError(err); ok {
@@ -75,21 +84,50 @@ func Login(c *gin.Context) {
 		}
 	} else {
 		// 查询到对应的用户，校验密码
-		if _, pasErr := global.UserServiceClient.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
+		if passRsp, passErr := global.UserServiceClient.CheckPassword(context.Background(), &proto.PasswordCheckInfo{
 			Password:          loginForm.Password,
-			EncryptedPassword: res.Password,
-		}); pasErr != nil {
+			EncryptedPassword: rsp.Password,
+		}); passErr != nil {
 			c.JSON(http.StatusInternalServerError, map[string]string{
-				"password": "密码错误",
+				"msg": "登录失败",
 			})
 		} else {
-			c.JSON(http.StatusOK, map[string]string{
-				"msg": "登录成功",
-			})
-		}
-		return
-	}
+			if passRsp.Success {
+				// token
+				j := middlewares.NewJwt()
+				k := utils.GetConfigKey()
+				now := time.Now().Unix()
+				claims := models.JwtClaims{
+					Id:          uint(rsp.Id),
+					Nickname:    rsp.Nickname,
+					AuthorityId: uint(rsp.Role),
+					StandardClaims: jwt.StandardClaims{
+						ExpiresAt: now + k.GetInt64("jwt.expires"), // 过期时间
+						NotBefore: now,                             // 生效时间
+						Issuer:    k.GetString("jwt.issuer"),       // 签发者
+					},
+				}
 
+				token, err := j.CreateToken(claims)
+				if err != nil {
+					c.JSON(http.StatusInternalServerError, gin.H{
+						"msg": "Token颁发失败",
+					})
+					return
+				}
+				c.JSON(http.StatusOK, gin.H{
+					"id":       rsp.Id,
+					"nickname": rsp.Nickname,
+					"token":    token,
+					"expires":  (time.Now().Unix() + k.GetInt64("jwt.expires")) * 1000,
+				})
+			} else {
+				c.JSON(http.StatusBadRequest, map[string]string{
+					"msg": "登录失败",
+				})
+			}
+		}
+	}
 }
 
 func Register(c *gin.Context) {

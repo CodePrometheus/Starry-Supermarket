@@ -109,8 +109,6 @@ class UserServicer(user_pb2_grpc.UserServicer):
             user.nick_name = request.nickname
             user.gender = request.gender
             user.birthday = date.fromtimestamp(request.birthday)
-            print(request.birthday)
-            print(user.birthday)
             user.save()
             return empty_pb2.Empty()
         except DoesNotExist:
@@ -119,5 +117,5 @@ class UserServicer(user_pb2_grpc.UserServicer):
             return user_pb2.UserInfoResponse()
 
     @logger.catch
-    def CheckPassword(self, request: user_pb2.PasswordCheckInfo):
+    def CheckPassword(self, request: user_pb2.PasswordCheckInfo, context):
         return user_pb2.CheckResponse(success=pbkdf2_sha256.verify(request.password, request.encryptedPassword))

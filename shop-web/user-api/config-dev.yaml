@@ -4,3 +4,8 @@ port: 3000
 user-service:
   host: 'localhost'
   port: 9000
+
+jwt:
+  key: 'tBvO^F6fgurLC#*tMThbdK27RChI@p5d'
+  expires: 86400
+  issuer: 'starry'
