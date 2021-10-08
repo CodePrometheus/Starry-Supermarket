@@ -15,12 +15,12 @@ class UserTest:
         ))
         print(rsp.total)
         for i in rsp.data:
-            print(i.mobile, i.nickname)
+            print(i.email, i.nickname)
 
-    def create_user(self, nick_name, mobile, password):
+    def create_user(self, nick_name, email, password):
         rsp: user_pb2.UserInfoResponse = self.stub.CreateUser(
             user_pb2.CreateUserInfo(nickname=nick_name,
-                                    mobile=mobile,
+                                    email=email,
                                     password=password))
         print(rsp.id)
 
@@ -28,7 +28,7 @@ class UserTest:
         rsp: user_pb2.UserInfoResponse = self.stub.GetUserById(
             user_pb2.IdRequest(id=request_id)
         )
-        print(rsp.mobile)
+        print(rsp.email)
 
     def update_user(self, request_id, nickname, gender, birthday):
         rsp: user_pb2.UserInfoResponse = self.stub.UpdateUser(
@@ -43,6 +43,3 @@ class UserTest:
 if __name__ == '__main__':
     user = UserTest()
     user.user_list()
-    # user.create_user("starry", "12345678901", "admin")
-    # user.get_user_by_id(19)
-    # user.update_user(19, nickname="admin", gender="1", birthday=1641319300)

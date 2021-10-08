@@ -20,9 +20,9 @@ class UserStub(object):
             request_serializer=user__pb2.PageInfo.SerializeToString,
             response_deserializer=user__pb2.UserListResponse.FromString,
         )
-        self.GetUserByMobile = channel.unary_unary(
-            '/User/GetUserByMobile',
-            request_serializer=user__pb2.MobileRequest.SerializeToString,
+        self.GetUserByEmail = channel.unary_unary(
+            '/User/GetUserByEmail',
+            request_serializer=user__pb2.EmailRequest.SerializeToString,
             response_deserializer=user__pb2.UserInfoResponse.FromString,
         )
         self.GetUserById = channel.unary_unary(
@@ -57,8 +57,8 @@ class UserServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def GetUserByMobile(self, request, context):
-        """通过mobile查询用户
+    def GetUserByEmail(self, request, context):
+        """通过Email查询用户
         """
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -100,9 +100,9 @@ def add_UserServicer_to_server(servicer, server):
             request_deserializer=user__pb2.PageInfo.FromString,
             response_serializer=user__pb2.UserListResponse.SerializeToString,
         ),
-        'GetUserByMobile': grpc.unary_unary_rpc_method_handler(
-            servicer.GetUserByMobile,
-            request_deserializer=user__pb2.MobileRequest.FromString,
+        'GetUserByEmail': grpc.unary_unary_rpc_method_handler(
+            servicer.GetUserByEmail,
+            request_deserializer=user__pb2.EmailRequest.FromString,
             response_serializer=user__pb2.UserInfoResponse.SerializeToString,
         ),
         'GetUserById': grpc.unary_unary_rpc_method_handler(
@@ -153,18 +153,18 @@ class User(object):
                                              insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def GetUserByMobile(request,
-                        target,
-                        options=(),
-                        channel_credentials=None,
-                        call_credentials=None,
-                        insecure=False,
-                        compression=None,
-                        wait_for_ready=None,
-                        timeout=None,
-                        metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/User/GetUserByMobile',
-                                             user__pb2.MobileRequest.SerializeToString,
+    def GetUserByEmail(request,
+                       target,
+                       options=(),
+                       channel_credentials=None,
+                       call_credentials=None,
+                       insecure=False,
+                       compression=None,
+                       wait_for_ready=None,
+                       timeout=None,
+                       metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/User/GetUserByEmail',
+                                             user__pb2.EmailRequest.SerializeToString,
                                              user__pb2.UserInfoResponse.FromString,
                                              options, channel_credentials,
                                              insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

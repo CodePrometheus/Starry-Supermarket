@@ -15,7 +15,6 @@ import (
 	"shop-web/user-api/middlewares"
 	"shop-web/user-api/models"
 	"shop-web/user-api/proto"
-	"shop-web/user-api/utils"
 	"strconv"
 	"strings"
 	"time"
@@ -51,7 +50,7 @@ func GetUserList(ctx *gin.Context) {
 			Nickname: value.Nickname,
 			Birthday: reponse.JsonTime(time.Unix(int64(value.Birthday), 0)),
 			Gender:   value.Gender,
-			Mobile:   value.Mobile,
+			Email:    value.Email,
 		}
 		res = append(res, user)
 	}
@@ -65,9 +64,16 @@ func Login(c *gin.Context) {
 		return
 	}
 
+	// captcha
+	if !store.Verify(loginForm.CaptchaId, loginForm.Captcha, false) {
+		c.JSON(http.StatusBadRequest, gin.H{
+			"captcha": "验证码错误",
+		})
+	}
+
 	// login
-	if rsp, err := global.UserServiceClient.GetUserByMobile(context.Background(), &proto.MobileRequest{
-		Mobile: loginForm.Mobile,
+	if rsp, err := global.UserServiceClient.GetUserByEmail(context.Background(), &proto.EmailRequest{
+		Email: loginForm.Email,
 	}); err != nil {
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
@@ -95,16 +101,16 @@ func Login(c *gin.Context) {
 			if passRsp.Success {
 				// token
 				j := middlewares.NewJwt()
-				k := utils.GetConfigKey()
 				now := time.Now().Unix()
+				jwtInfo := global.ServerConfig.JwtInfo
 				claims := models.JwtClaims{
 					Id:          uint(rsp.Id),
 					Nickname:    rsp.Nickname,
 					AuthorityId: uint(rsp.Role),
 					StandardClaims: jwt.StandardClaims{
-						ExpiresAt: now + k.GetInt64("jwt.expires"), // 过期时间
-						NotBefore: now,                             // 生效时间
-						Issuer:    k.GetString("jwt.issuer"),       // 签发者
+						ExpiresAt: now + jwtInfo.Expires, // 过期时间
+						NotBefore: now,                   // 生效时间
+						Issuer:    jwtInfo.Issuer,        // 签发者
 					},
 				}
 
@@ -119,7 +125,7 @@ func Login(c *gin.Context) {
 					"id":       rsp.Id,
 					"nickname": rsp.Nickname,
 					"token":    token,
-					"expires":  (time.Now().Unix() + k.GetInt64("jwt.expires")) * 1000,
+					"expires":  (time.Now().Unix() + jwtInfo.Expires) * 1000,
 				})
 			} else {
 				c.JSON(http.StatusBadRequest, map[string]string{

@@ -20,8 +20,8 @@ class User(BaseModel):
         (2, "管理员")
     )
 
-    # 手机号码定为用户的唯一标识
-    mobile = CharField(max_length=11, index=True, unique=True, verbose_name="手机号码")
+    # 邮箱定为用户的唯一标识
+    email = CharField(max_length=20, index=True, unique=True, verbose_name="邮箱")
 
     password = CharField(max_length=100, verbose_name="密码")  # 1. 密文 2. 密文不可反解
     nick_name = CharField(max_length=20, null=True, verbose_name="昵称")
@@ -43,6 +43,6 @@ if __name__ == '__main__':
     for i in range(10):
         user = User()
         user.nick_name = f"starry-{i}"
-        user.mobile = f"1387001234{i}"
+        user.email = f"email{i}"
         user.password = pbkdf2_sha256.hash("starry")
         user.save()

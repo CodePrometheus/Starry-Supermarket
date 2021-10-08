@@ -21,7 +21,7 @@ class UserServicer(user_pb2_grpc.UserServicer):
 
         user_info_rsp.id = user.id
         user_info_rsp.password = user.password
-        user_info_rsp.mobile = user.mobile
+        user_info_rsp.email = user.email
         user_info_rsp.role = user.role
 
         if user.nick_name:
@@ -70,10 +70,10 @@ class UserServicer(user_pb2_grpc.UserServicer):
             return user_pb2.UserInfoResponse()
 
     @logger.catch
-    def GetUserByMobile(self, request: user_pb2.MobileRequest, context):
-        # 通过mobile查询用户
+    def GetUserByEmail(self, request: user_pb2.EmailRequest, context):
+        # 通过email查询用户
         try:
-            user = User.get(User.mobile == request.mobile)
+            user = User.get(User.email == request.email)
             return self.convert_user_to_rsp(user)
         except DoesNotExist as e:
             logger.error(e)
@@ -85,7 +85,7 @@ class UserServicer(user_pb2_grpc.UserServicer):
     def CreateUser(self, request: user_pb2.CreateUserInfo, context):
         # 新建用户
         try:
-            User.get(User.mobile == request.mobile)
+            User.get(User.email == request.email)
             context.set_code(grpc.StatusCode.ALREADY_EXISTS)
             context.set_details("用户已存在")
             return user_pb2.UserInfoResponse()
@@ -95,7 +95,7 @@ class UserServicer(user_pb2_grpc.UserServicer):
 
         user = User()
         user.nick_name = request.nickname
-        user.mobile = request.mobile
+        user.email = request.email
         user.password = pbkdf2_sha256.hash(request.password)
         user.save()
 

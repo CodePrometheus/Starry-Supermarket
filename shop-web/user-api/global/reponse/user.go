@@ -17,5 +17,5 @@ type UserResponse struct {
 	Nickname string   `json:"name"`
 	Birthday JsonTime `json:"birthday"`
 	Gender   string   `json:"gender"`
-	Mobile   string   `json:"mobile"`
+	Email    string   `json:"email"`
 }

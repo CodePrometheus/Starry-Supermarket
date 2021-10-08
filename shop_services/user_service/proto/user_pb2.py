@@ -19,7 +19,7 @@ DESCRIPTOR = _descriptor.FileDescriptor(
     syntax='proto3',
     serialized_options=b'Z\007.;proto',
     create_key=_descriptor._internal_create_key,
-    serialized_pb=b'\n\nuser.proto\x1a\x1bgoogle/protobuf/empty.proto\"@\n\x11PasswordCheckInfo\x12\x10\n\x08password\x18\x01 \x01(\t\x12\x19\n\x11\x65ncryptedPassword\x18\x02 \x01(\t\" \n\rCheckResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"%\n\x08PageInfo\x12\n\n\x02pn\x18\x01 \x01(\r\x12\r\n\x05pSize\x18\x02 \x01(\r\"\x1f\n\rMobileRequest\x12\x0e\n\x06mobile\x18\x01 \x01(\t\"\x17\n\tIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"D\n\x0e\x43reateUserInfo\x12\x10\n\x08nickname\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x0e\n\x06mobile\x18\x03 \x01(\t\"P\n\x0eUpdateUserInfo\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08nickname\x18\x02 \x01(\t\x12\x0e\n\x06gender\x18\x03 \x01(\t\x12\x10\n\x08\x62irthday\x18\x04 \x01(\x04\"\x82\x01\n\x10UserInfoResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08password\x18\x02 \x01(\t\x12\x0e\n\x06mobile\x18\x03 \x01(\t\x12\x10\n\x08nickname\x18\x04 \x01(\t\x12\x10\n\x08\x62irthday\x18\x05 \x01(\x04\x12\x0e\n\x06gender\x18\x06 \x01(\t\x12\x0c\n\x04role\x18\x07 \x01(\x05\"B\n\x10UserListResponse\x12\r\n\x05total\x18\x01 \x01(\x05\x12\x1f\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x11.UserInfoResponse2\xb5\x02\n\x04User\x12+\n\x0bGetUserList\x12\t.PageInfo\x1a\x11.UserListResponse\x12\x34\n\x0fGetUserByMobile\x12\x0e.MobileRequest\x1a\x11.UserInfoResponse\x12,\n\x0bGetUserById\x12\n.IdRequest\x1a\x11.UserInfoResponse\x12\x30\n\nCreateUser\x12\x0f.CreateUserInfo\x1a\x11.UserInfoResponse\x12\x35\n\nUpdateUser\x12\x0f.UpdateUserInfo\x1a\x16.google.protobuf.Empty\x12\x33\n\rCheckPassword\x12\x12.PasswordCheckInfo\x1a\x0e.CheckResponseB\tZ\x07.;protob\x06proto3'
+    serialized_pb=b'\n\nuser.proto\x1a\x1bgoogle/protobuf/empty.proto\"@\n\x11PasswordCheckInfo\x12\x10\n\x08password\x18\x01 \x01(\t\x12\x19\n\x11\x65ncryptedPassword\x18\x02 \x01(\t\" \n\rCheckResponse\x12\x0f\n\x07success\x18\x01 \x01(\x08\"%\n\x08PageInfo\x12\n\n\x02pn\x18\x01 \x01(\r\x12\r\n\x05pSize\x18\x02 \x01(\r\"\x1d\n\x0c\x45mailRequest\x12\r\n\x05\x65mail\x18\x01 \x01(\t\"\x17\n\tIdRequest\x12\n\n\x02id\x18\x01 \x01(\x05\"C\n\x0e\x43reateUserInfo\x12\x10\n\x08nickname\x18\x01 \x01(\t\x12\x10\n\x08password\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\"P\n\x0eUpdateUserInfo\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08nickname\x18\x02 \x01(\t\x12\x0e\n\x06gender\x18\x03 \x01(\t\x12\x10\n\x08\x62irthday\x18\x04 \x01(\x04\"\x81\x01\n\x10UserInfoResponse\x12\n\n\x02id\x18\x01 \x01(\x05\x12\x10\n\x08password\x18\x02 \x01(\t\x12\r\n\x05\x65mail\x18\x03 \x01(\t\x12\x10\n\x08nickname\x18\x04 \x01(\t\x12\x10\n\x08\x62irthday\x18\x05 \x01(\x04\x12\x0e\n\x06gender\x18\x06 \x01(\t\x12\x0c\n\x04role\x18\x07 \x01(\x05\"B\n\x10UserListResponse\x12\r\n\x05total\x18\x01 \x01(\x05\x12\x1f\n\x04\x64\x61ta\x18\x02 \x03(\x0b\x32\x11.UserInfoResponse2\xb3\x02\n\x04User\x12+\n\x0bGetUserList\x12\t.PageInfo\x1a\x11.UserListResponse\x12\x32\n\x0eGetUserByEmail\x12\r.EmailRequest\x1a\x11.UserInfoResponse\x12,\n\x0bGetUserById\x12\n.IdRequest\x1a\x11.UserInfoResponse\x12\x30\n\nCreateUser\x12\x0f.CreateUserInfo\x1a\x11.UserInfoResponse\x12\x35\n\nUpdateUser\x12\x0f.UpdateUserInfo\x1a\x16.google.protobuf.Empty\x12\x33\n\rCheckPassword\x12\x12.PasswordCheckInfo\x1a\x0e.CheckResponseB\tZ\x07.;protob\x06proto3'
     ,
     dependencies=[google_dot_protobuf_dot_empty__pb2.DESCRIPTOR, ])
 
@@ -130,16 +130,16 @@ _PAGEINFO = _descriptor.Descriptor(
     serialized_end=180,
 )
 
-_MOBILEREQUEST = _descriptor.Descriptor(
-    name='MobileRequest',
-    full_name='MobileRequest',
+_EMAILREQUEST = _descriptor.Descriptor(
+    name='EmailRequest',
+    full_name='EmailRequest',
     filename=None,
     file=DESCRIPTOR,
     containing_type=None,
     create_key=_descriptor._internal_create_key,
     fields=[
         _descriptor.FieldDescriptor(
-            name='mobile', full_name='MobileRequest.mobile', index=0,
+            name='email', full_name='EmailRequest.email', index=0,
             number=1, type=9, cpp_type=9, label=1,
             has_default_value=False, default_value=b"".decode('utf-8'),
             message_type=None, enum_type=None, containing_type=None,
@@ -158,7 +158,7 @@ _MOBILEREQUEST = _descriptor.Descriptor(
     oneofs=[
     ],
     serialized_start=182,
-    serialized_end=213,
+    serialized_end=211,
 )
 
 _IDREQUEST = _descriptor.Descriptor(
@@ -188,8 +188,8 @@ _IDREQUEST = _descriptor.Descriptor(
     extension_ranges=[],
     oneofs=[
     ],
-    serialized_start=215,
-    serialized_end=238,
+    serialized_start=213,
+    serialized_end=236,
 )
 
 _CREATEUSERINFO = _descriptor.Descriptor(
@@ -215,7 +215,7 @@ _CREATEUSERINFO = _descriptor.Descriptor(
             is_extension=False, extension_scope=None,
             serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
         _descriptor.FieldDescriptor(
-            name='mobile', full_name='CreateUserInfo.mobile', index=2,
+            name='email', full_name='CreateUserInfo.email', index=2,
             number=3, type=9, cpp_type=9, label=1,
             has_default_value=False, default_value=b"".decode('utf-8'),
             message_type=None, enum_type=None, containing_type=None,
@@ -233,8 +233,8 @@ _CREATEUSERINFO = _descriptor.Descriptor(
     extension_ranges=[],
     oneofs=[
     ],
-    serialized_start=240,
-    serialized_end=308,
+    serialized_start=238,
+    serialized_end=305,
 )
 
 _UPDATEUSERINFO = _descriptor.Descriptor(
@@ -285,8 +285,8 @@ _UPDATEUSERINFO = _descriptor.Descriptor(
     extension_ranges=[],
     oneofs=[
     ],
-    serialized_start=310,
-    serialized_end=390,
+    serialized_start=307,
+    serialized_end=387,
 )
 
 _USERINFORESPONSE = _descriptor.Descriptor(
@@ -312,7 +312,7 @@ _USERINFORESPONSE = _descriptor.Descriptor(
             is_extension=False, extension_scope=None,
             serialized_options=None, file=DESCRIPTOR, create_key=_descriptor._internal_create_key),
         _descriptor.FieldDescriptor(
-            name='mobile', full_name='UserInfoResponse.mobile', index=2,
+            name='email', full_name='UserInfoResponse.email', index=2,
             number=3, type=9, cpp_type=9, label=1,
             has_default_value=False, default_value=b"".decode('utf-8'),
             message_type=None, enum_type=None, containing_type=None,
@@ -358,8 +358,8 @@ _USERINFORESPONSE = _descriptor.Descriptor(
     extension_ranges=[],
     oneofs=[
     ],
-    serialized_start=393,
-    serialized_end=523,
+    serialized_start=390,
+    serialized_end=519,
 )
 
 _USERLISTRESPONSE = _descriptor.Descriptor(
@@ -396,15 +396,15 @@ _USERLISTRESPONSE = _descriptor.Descriptor(
     extension_ranges=[],
     oneofs=[
     ],
-    serialized_start=525,
-    serialized_end=591,
+    serialized_start=521,
+    serialized_end=587,
 )
 
 _USERLISTRESPONSE.fields_by_name['data'].message_type = _USERINFORESPONSE
 DESCRIPTOR.message_types_by_name['PasswordCheckInfo'] = _PASSWORDCHECKINFO
 DESCRIPTOR.message_types_by_name['CheckResponse'] = _CHECKRESPONSE
 DESCRIPTOR.message_types_by_name['PageInfo'] = _PAGEINFO
-DESCRIPTOR.message_types_by_name['MobileRequest'] = _MOBILEREQUEST
+DESCRIPTOR.message_types_by_name['EmailRequest'] = _EMAILREQUEST
 DESCRIPTOR.message_types_by_name['IdRequest'] = _IDREQUEST
 DESCRIPTOR.message_types_by_name['CreateUserInfo'] = _CREATEUSERINFO
 DESCRIPTOR.message_types_by_name['UpdateUserInfo'] = _UPDATEUSERINFO
@@ -433,12 +433,12 @@ PageInfo = _reflection.GeneratedProtocolMessageType('PageInfo', (_message.Messag
 })
 _sym_db.RegisterMessage(PageInfo)
 
-MobileRequest = _reflection.GeneratedProtocolMessageType('MobileRequest', (_message.Message,), {
-    'DESCRIPTOR': _MOBILEREQUEST,
+EmailRequest = _reflection.GeneratedProtocolMessageType('EmailRequest', (_message.Message,), {
+    'DESCRIPTOR': _EMAILREQUEST,
     '__module__': 'user_pb2'
-    # @@protoc_insertion_point(class_scope:MobileRequest)
+    # @@protoc_insertion_point(class_scope:EmailRequest)
 })
-_sym_db.RegisterMessage(MobileRequest)
+_sym_db.RegisterMessage(EmailRequest)
 
 IdRequest = _reflection.GeneratedProtocolMessageType('IdRequest', (_message.Message,), {
     'DESCRIPTOR': _IDREQUEST,
@@ -484,8 +484,8 @@ _USER = _descriptor.ServiceDescriptor(
     index=0,
     serialized_options=None,
     create_key=_descriptor._internal_create_key,
-    serialized_start=594,
-    serialized_end=903,
+    serialized_start=590,
+    serialized_end=897,
     methods=[
         _descriptor.MethodDescriptor(
             name='GetUserList',
@@ -498,11 +498,11 @@ _USER = _descriptor.ServiceDescriptor(
             create_key=_descriptor._internal_create_key,
         ),
         _descriptor.MethodDescriptor(
-            name='GetUserByMobile',
-            full_name='User.GetUserByMobile',
+            name='GetUserByEmail',
+            full_name='User.GetUserByEmail',
             index=1,
             containing_service=None,
-            input_type=_MOBILEREQUEST,
+            input_type=_EMAILREQUEST,
             output_type=_USERINFORESPONSE,
             serialized_options=None,
             create_key=_descriptor._internal_create_key,
