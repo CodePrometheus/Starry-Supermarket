@@ -2,7 +2,6 @@ package utils
 
 import (
 	"context"
-	"fmt"
 	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 	"shop-web/user-api/global"
@@ -11,6 +10,7 @@ import (
 
 var (
 	ctx = context.Background()
+	min = time.Minute
 )
 
 const CAPTCHA = "captcha:"
@@ -26,7 +26,7 @@ func InitRedis() *redis.Client {
 		DB:       config.DB,
 	})
 	if err := Redis.Ping(ctx).Err(); err != nil {
-		zap.S().Errorw("Redis连接失败失败: ", err.Error())
+		zap.S().Panicf("Redis连接失败失败: %s", err.Error())
 	}
 	return Redis
 }
@@ -34,10 +34,9 @@ func InitRedis() *redis.Client {
 // Set set a capt
 func (r RedisStore) Set(id string, value string) error {
 	key := CAPTCHA + id
-	fmt.Println("key: " + key)
-	fmt.Println("value: " + value)
-	if err := InitRedis().Set(ctx, key, value, time.Minute*2).Err(); err != nil {
-		zap.S().Errorw("插入缓存失败: ", err.Error())
+	duration := min * time.Duration(global.ServerConfig.RedisInfo.Expires)
+	if err := InitRedis().Set(ctx, key, value, duration).Err(); err != nil {
+		zap.S().Errorf("插入缓存失败: %s", err.Error())
 	}
 	return nil
 }
@@ -47,12 +46,12 @@ func (r RedisStore) Get(id string, clear bool) string {
 	key := CAPTCHA + id
 	val, err := InitRedis().Get(ctx, key).Result()
 	if err != nil {
-		zap.S().Errorw("获取缓存失败: ", err.Error())
+		zap.S().Errorf("获取缓存失败: %s", err.Error())
 		return ""
 	}
 	if clear {
 		if err := InitRedis().Del(ctx, key).Err(); err != nil {
-			zap.S().Errorw("清除缓存失败: ", err.Error())
+			zap.S().Errorf("清除缓存失败: %s", err.Error())
 			return ""
 		}
 	}
@@ -63,4 +62,16 @@ func (r RedisStore) Get(id string, clear bool) string {
 func (r RedisStore) Verify(id, answer string, clear bool) bool {
 	v := RedisStore{}.Get(id, clear)
 	return v == answer
+}
+
+func SetKey(key string, value string) {
+	duration := min * time.Duration(global.ServerConfig.RedisInfo.Expires)
+	if err := InitRedis().Set(ctx, key, value, duration).Err(); err != nil {
+		zap.S().Errorf("插入缓存失败: %s", err.Error())
+	}
+}
+
+func GetKey(key string) (string, error) {
+	value, err := InitRedis().Get(ctx, key).Result()
+	return value, err
 }

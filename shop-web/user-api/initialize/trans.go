@@ -14,7 +14,7 @@ import (
 	"strings"
 )
 
-func InitTrans(tran string) (err error) {
+func InitTrans(tran string) {
 	// 修改gin框架中的validator引擎属性, 实现定制
 	if v, ok := binding.Validator.Engine().(*validator.Validate); ok {
 		// 注册一个获取json的tag的自定义方法
@@ -36,18 +36,17 @@ func InitTrans(tran string) (err error) {
 		switch tran {
 		case "en":
 			if err := enTran.RegisterDefaultTranslations(v, global.Trans); err != nil {
-				zap.S().Panic("国际化en失败: ", err.Error())
+				zap.S().Panicf("国际化en失败: %s", err.Error())
 			}
 		case "zh":
 			if err := zhTran.RegisterDefaultTranslations(v, global.Trans); err != nil {
-				zap.S().Panic("国际化zh失败: ", err.Error())
+				zap.S().Panicf("国际化zh失败: %s", err.Error())
 			}
 		default:
 			if err := enTran.RegisterDefaultTranslations(v, global.Trans); err != nil {
-				zap.S().Panic("国际化en失败: ", err.Error())
+				zap.S().Panicf("国际化en失败: %s", err.Error())
 			}
 		}
 		return
 	}
-	return
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
-	"github.com/go-playground/validator/v10"
+	"github.com/go-redis/redis/v8"
 	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -15,8 +15,8 @@ import (
 	"shop-web/user-api/middlewares"
 	"shop-web/user-api/models"
 	"shop-web/user-api/proto"
+	"shop-web/user-api/utils"
 	"strconv"
-	"strings"
 	"time"
 )
 
@@ -38,7 +38,7 @@ func GetUserList(ctx *gin.Context) {
 
 	if err != nil {
 		zap.S().Errorw("[GetUserList] 查询 [用户列表] 失败")
-		HandleGrpcErrorToHttp(err, ctx)
+		utils.HandleGrpcErrorToHttp(err, ctx)
 		return
 	}
 
@@ -60,7 +60,7 @@ func GetUserList(ctx *gin.Context) {
 func Login(c *gin.Context) {
 	loginForm := forms.LoginForm{}
 	if err := c.ShouldBindJSON(&loginForm); err != nil {
-		HandleFormError(c, err)
+		utils.HandleFormError(c, err)
 		return
 	}
 
@@ -136,59 +136,67 @@ func Login(c *gin.Context) {
 	}
 }
 
-func Register(c *gin.Context) {
+// Register 注册
+func Register(ctx *gin.Context) {
+	registerForm := forms.RegisterForm{}
+	if err := ctx.ShouldBind(&registerForm); err != nil {
+		utils.HandleFormError(ctx, err)
+		return
+	}
 
-}
-
-func HandleFormError(c *gin.Context, error error) {
-	// 拦截表单错误
-	err, ok := error.(validator.ValidationErrors)
-	if !ok {
-		c.JSON(http.StatusOK, gin.H{
-			"msg": error.Error(),
+	// code
+	value, err := utils.GetKey(registerForm.Email)
+	if err == redis.Nil {
+		ctx.JSON(http.StatusBadRequest, gin.H{
+			"code": "验证码不存在",
 		})
-	}
-	c.JSON(http.StatusBadRequest, gin.H{
-		"error": removeTopStruct(err.Translate(global.Trans)),
-	})
-	return
-}
-
-func removeTopStruct(fileds map[string]string) map[string]string {
-	res := map[string]string{}
-	for field, err := range fileds {
-		res[field[strings.Index(field, ".")+1:]] = err
-	}
-	return res
-}
-
-func HandleGrpcErrorToHttp(err error, c *gin.Context) {
-	// 将grpc的code转换成http的状态码
-	if err != nil {
-		if se, ok := status.FromError(err); ok {
-			switch se.Code() {
-			case codes.NotFound:
-				c.JSON(http.StatusNotFound, gin.H{
-					"msg": se.Message(),
-				})
-			case codes.Internal:
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"msg": "内部错误",
-				})
-			case codes.InvalidArgument:
-				c.JSON(http.StatusBadRequest, gin.H{
-					"msg": "参数错误",
-				})
-			case codes.Unavailable:
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"msg": "用户服务不可用",
-				})
-			default:
-				c.JSON(http.StatusInternalServerError, gin.H{
-					"msg": se.Code(),
-				})
-			}
+		return
+	} else {
+		if value != registerForm.Code {
+			ctx.JSON(http.StatusBadRequest, gin.H{
+				"code": "验证码错误",
+			})
 			return
 		}
 	}
+
+	// create
+	user, err := global.UserServiceClient.CreateUser(ctx, &proto.CreateUserInfo{
+		Nickname: registerForm.Nickname,
+		Password: registerForm.Password,
+		Email:    registerForm.Email,
+	})
+	if err != nil {
+		zap.S().Errorf("[Register] 查询 [新建用户失败] 失败: %s", err.Error())
+		utils.HandleGrpcErrorToHttp(err, ctx)
+		return
+	}
+
+	// token
+	j := middlewares.NewJwt()
+	now := time.Now().Unix()
+	jwtInfo := global.ServerConfig.JwtInfo
+	claims := models.JwtClaims{
+		Id:          uint(user.Id),
+		Nickname:    user.Nickname,
+		AuthorityId: uint(user.Role),
+		StandardClaims: jwt.StandardClaims{
+			ExpiresAt: now + jwtInfo.Expires, // 过期时间
+			NotBefore: now,                   // 生效时间
+			Issuer:    jwtInfo.Issuer,        // 签发者
+		},
+	}
+	token, err := j.CreateToken(claims)
+	if err != nil {
+		ctx.JSON(http.StatusInternalServerError, gin.H{
+			"msg": "生成Token失败",
+		})
+		return
+	}
+	ctx.JSON(http.StatusOK, gin.H{
+		"id":         user.Id,
+		"nick_name":  user.Nickname,
+		"token":      token,
+		"expired_at": (time.Now().Unix() + jwtInfo.Expires) * 1000,
+	})
 }

@@ -1,7 +1,10 @@
 name: 'user-api'
+host: 'localhost'
 port: 3000
+tags: "dev"
 
 user-service:
+  name: 'user-service'
   host: 'localhost'
   port: 9000
 
@@ -15,3 +18,16 @@ redis:
   port: '6379'
   password: ''
   db: 1
+  expires: 2
+
+email:
+  from: 'starry <2413245708@qq.com>'
+  subject: 'Register'
+  host: "smtp.qq.com"
+  port: '587'
+  username: '2413245708@qq.com'
+  password: ''
+
+consul:
+  host: "localhost"
+  port: 8500

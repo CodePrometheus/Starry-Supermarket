@@ -11,8 +11,12 @@ from functools import partial
 import grpc
 from loguru import logger
 
+from shop_services.common_service.grpc_health.v1 import health
+from shop_services.common_service.grpc_health.v1 import health_pb2_grpc
+from shop_services.common_service.register import register
 from shop_services.user_service.handler.user import UserServicer
 from shop_services.user_service.proto import user_pb2_grpc
+from shop_services.user_service.settings import register_config
 
 BASE_DIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 sys.path.insert(0, BASE_DIR)
@@ -35,13 +39,22 @@ def start():
                         )
     args = parser.parse_args()
 
+    if args.port == 0:
+        port = get_free_tcp_port()
+    else:
+        port = args.port
+
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
     # 注册用户服务
     user_pb2_grpc.add_UserServicer_to_server(UserServicer(), server)
-    server.add_insecure_port(f'{args.ip}:{args.port}')
 
-    logger.add("logs/user_service_{time}.log", rotation="2 MB", retention="1 days")
+    # 注册健康检查
+    health_pb2_grpc.add_HealthServicer_to_server(health.HealthServicer(), server)
+
+    server.add_insecure_port(f"{args.ip}:{args.port}")
+
+    logger.add("logs/user_service_{time}.log", rotation="2 MB", retention="1 hours")
 
     """
     主进程退出信号监听
@@ -50,22 +63,35 @@ def start():
         SIGTERM kill发出的软件终止
     """
     service_id = str(uuid.uuid1())
-    signal.signal(signal.SIGINT, partial(exit, service_id=service_id))
-    signal.signal(signal.SIGTERM, partial(exit, service_id=service_id))
+    signal.signal(signal.SIGINT, partial(handler_exit, service_id=service_id))
+    signal.signal(signal.SIGTERM, partial(handler_exit, service_id=service_id))
 
-    if args.port == 0:
-        port = get_free_tcp_port()
-    else:
-        port = args.port
-    logger.info(f"启动服务: {args.ip}:{port}")
-
+    # start server
+    logger.info(f"启动服务: {args.ip} : {port}")
     server.start()
+
+    # consul register
+    logger.info(f"服务注册开始")
+    consul = register.ConsulRegister(register_config.CONSUL_HOST, register_config.CONSUL_PORT)
+    if not consul.register(name=register_config.SERVICE_NAME,
+                           id=service_id,
+                           addr=args.ip,
+                           port=args.port,
+                           tags=register_config.SERVICE_TAGS,
+                           check=None):
+        logger.error(f"服务 {register_config.SERVICE_NAME} 注册失败")
+        sys.exit(0)
+
+    logger.info(f"服务 {register_config.SERVICE_NAME} 注册成功")
     server.wait_for_termination()
 
 
-def handler_exit(service_id):
+def handler_exit(signo, frame, service_id):
+    logging.info("signo : ", signo, " frame : ", frame)
+    consul = register.ConsulRegister(register_config.CONSUL_HOST, register_config.CONSUL_PORT)
     logger.info(f"注销 {service_id} 服务")
-    logger.info("注销成功")
+    consul.deregister(service_id=service_id)
+    logger.info(f"注销 {service_id} 服务成功")
     sys.exit(0)
 
 

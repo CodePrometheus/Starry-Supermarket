@@ -11,7 +11,7 @@ from shop_services.user_service.model.models import User
 from shop_services.user_service.proto import user_pb2_grpc, user_pb2
 
 
-# 定义的方法
+# 全部用户服务
 class UserServicer(user_pb2_grpc.UserServicer):
     @staticmethod
     @logger.catch

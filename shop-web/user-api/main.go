@@ -1,11 +1,12 @@
 package main
 
 import (
-	"fmt"
-	"go.uber.org/zap"
-	"shop-web/user-api/global"
 	"shop-web/user-api/initialize"
 	"shop-web/user-api/utils"
+)
+
+var (
+	tran = "zh"
 )
 
 func main() {
@@ -16,19 +17,20 @@ func main() {
 	// 初始化routers
 	Router := initialize.Routers()
 	// 初始化国际化
-	if err := initialize.InitTrans("zh"); err != nil {
-		zap.S().Errorw("国际化失败: ", err.Error())
-	}
+	initialize.InitTrans(tran)
 	// 注册验证器
 	initialize.BindingValidate()
 	// 初始化连接
 	initialize.InitServiceConn()
 	// 初始化Redis
 	utils.InitRedis()
-
-	port := global.ServerConfig.Port
-	if err := Router.Run(fmt.Sprintf(":%d", port)); err != nil {
-		zap.S().Errorw("启动失败: ", err.Error())
-	}
-
+	// 初始化Consul客户端
+	initialize.InitConsulClient()
+	// 初始化Consul服务
+	client, serviceId, Name, Port := initialize.InitConsul()
+	// 启动路由
+	go func() {
+		initialize.GoRouters(Router, Port)
+	}()
+	initialize.OnQuit(client, serviceId, Name)
 }

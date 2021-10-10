@@ -25,7 +25,7 @@ func GetCaptcha(ctx *gin.Context) {
 	id, b64s, err := captcha.Generate()
 	fmt.Println("res: " + b64s)
 	if err != nil {
-		zap.S().Errorw("生成验证码错误: ", err.Error)
+		zap.S().Errorf("生成验证码错误: %s", err.Error())
 		ctx.JSON(http.StatusInternalServerError, gin.H{
 			"msg": "生成验证码错误",
 		})
