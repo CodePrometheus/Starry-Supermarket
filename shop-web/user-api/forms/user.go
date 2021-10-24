@@ -3,7 +3,7 @@ package forms
 type LoginForm struct {
 	Email     string `form:"email" json:"email" binding:"required"`
 	Password  string `form:"password" json:"password" binding:"required,min=3,max=20"`
-	Captcha   string `form:"captcha" json:"captcha" binding:"required, min=1, max=5"`
+	Captcha   string `form:"captcha" json:"captcha" binding:"required,min=1,max=5"`
 	CaptchaId string `form:"captcha_id" json:"captcha_id" binding:"required"`
 }
 

@@ -39,7 +39,14 @@ class UserTest:
         )
         print(rsp)
 
+    def get_user_by_email(self, email):
+        rsp: user_pb2.UserInfoResponse = self.stub.GetUserByEmail(
+            user_pb2.EmailRequest(email=email)
+        )
+        print(rsp)
+
 
 if __name__ == '__main__':
     user = UserTest()
-    user.user_list()
+    # user.user_list()
+    # user.get_user_by_email("2413245708@qq.com")

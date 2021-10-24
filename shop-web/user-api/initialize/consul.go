@@ -2,6 +2,7 @@ package initialize
 
 import (
 	"fmt"
+	_ "github.com/mbobakov/grpc-consul-resolver"
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"
@@ -17,7 +18,7 @@ import (
 func InitConsulClient() {
 	consulInfo := global.ServerConfig.ConsulInfo
 	conn, err := grpc.Dial(
-		fmt.Sprintf("consul://%s:%d/%s",
+		fmt.Sprintf("consul://%s:%d/%s?wait=14s",
 			consulInfo.Host, consulInfo.Port,
 			global.ServerConfig.UserServiceInfo.Name),
 		grpc.WithInsecure(),

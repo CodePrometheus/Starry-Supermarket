@@ -21,13 +21,15 @@ func main() {
 	// 注册验证器
 	initialize.BindingValidate()
 	// 初始化连接
-	initialize.InitServiceConn()
+	//initialize.InitServiceConn()
 	// 初始化Redis
 	utils.InitRedis()
 	// 初始化Consul客户端
 	initialize.InitConsulClient()
 	// 初始化Consul服务
 	client, serviceId, Name, Port := initialize.InitConsul()
+	// 初始化Nacos
+	initialize.InitNacos()
 	// 启动路由
 	go func() {
 		initialize.GoRouters(Router, Port)

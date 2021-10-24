@@ -5,11 +5,12 @@ type ServerConfig struct {
 	Host            string            `mapstructure:"host" json:"host"`
 	Port            int               `mapstructure:"port" json:"port"`
 	Tags            []string          `mapstructure:"tags" json:"tags"`
-	UserServiceInfo UserServiceConfig `mapstructure:"user-service" json:"user_service"`
+	UserServiceInfo UserServiceConfig `mapstructure:"user_service" json:"user_service"`
 	JwtInfo         JwtConfig         `mapstructure:"jwt" json:"jwt"`
 	RedisInfo       RedisConfig       `mapstructure:"redis" json:"redis"`
 	EmailInfo       EmailConfig       `mapstructure:"email" json:"email"`
 	ConsulInfo      ConsulConfig      `mapstructure:"consul" json:"consul"`
+	NacosInfo       NacosConfig       `mapstructure:"nacos" json:"nacos"`
 }
 
 type UserServiceConfig struct {
@@ -44,4 +45,14 @@ type EmailConfig struct {
 type ConsulConfig struct {
 	Host string `mapstructure:"host" json:"host"`
 	Port int    `mapstructure:"port" json:"port"`
+}
+
+type NacosConfig struct {
+	Host      string `mapstructure:"host"`
+	Port      uint64 `mapstructure:"port"`
+	Namespace string `mapstructure:"namespace"`
+	User      string `mapstructure:"user"`
+	Password  string `mapstructure:"password"`
+	DataId    string `mapstructure:"dataId"`
+	Group     string `mapstructure:"group"`
 }

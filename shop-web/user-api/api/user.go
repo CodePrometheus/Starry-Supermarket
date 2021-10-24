@@ -2,6 +2,7 @@ package api
 
 import (
 	"context"
+	"fmt"
 	"github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
@@ -69,12 +70,14 @@ func Login(c *gin.Context) {
 		c.JSON(http.StatusBadRequest, gin.H{
 			"captcha": "验证码错误",
 		})
+		return
 	}
 
 	// login
 	if rsp, err := global.UserServiceClient.GetUserByEmail(context.Background(), &proto.EmailRequest{
 		Email: loginForm.Email,
 	}); err != nil {
+		fmt.Println("GetUserByEmail err: ", err)
 		if e, ok := status.FromError(err); ok {
 			switch e.Code() {
 			case codes.NotFound:
@@ -83,7 +86,7 @@ func Login(c *gin.Context) {
 				})
 			default:
 				c.JSON(http.StatusInternalServerError, map[string]string{
-					"msg": "登录失败",
+					"msg": "用户服务调用失败",
 				})
 			}
 			return
@@ -95,8 +98,9 @@ func Login(c *gin.Context) {
 			EncryptedPassword: rsp.Password,
 		}); passErr != nil {
 			c.JSON(http.StatusInternalServerError, map[string]string{
-				"msg": "登录失败",
+				"msg": "密码错误",
 			})
+			return
 		} else {
 			if passRsp.Success {
 				// token
@@ -129,8 +133,9 @@ func Login(c *gin.Context) {
 				})
 			} else {
 				c.JSON(http.StatusBadRequest, map[string]string{
-					"msg": "登录失败",
+					"msg": "用户服务调用失败",
 				})
+				return
 			}
 		}
 	}
