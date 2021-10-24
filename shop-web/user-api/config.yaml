@@ -1,0 +1,7 @@
+host: "localhost"
+port: 8848
+namespace: "77a22bd7-4ce5-4af5-89f0-b427b6d6c55f"
+user: nacos
+password: nacos
+dataId: "user-api"
+group: "dev"
