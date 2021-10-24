@@ -2,7 +2,7 @@ package initialize
 
 import (
 	"fmt"
-	_ "github.com/mbobakov/grpc-consul-resolver"
+	_ "github.com/mbobakov/grpc-consul-resolver" // it's important
 	uuid "github.com/satori/go.uuid"
 	"go.uber.org/zap"
 	"google.golang.org/grpc"

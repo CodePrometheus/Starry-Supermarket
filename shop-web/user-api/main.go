@@ -20,8 +20,6 @@ func main() {
 	initialize.InitTrans(tran)
 	// 注册验证器
 	initialize.BindingValidate()
-	// 初始化连接
-	//initialize.InitServiceConn()
 	// 初始化Redis
 	utils.InitRedis()
 	// 初始化Consul客户端

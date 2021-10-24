@@ -10,7 +10,6 @@ type ServerConfig struct {
 	RedisInfo       RedisConfig       `mapstructure:"redis" json:"redis"`
 	EmailInfo       EmailConfig       `mapstructure:"email" json:"email"`
 	ConsulInfo      ConsulConfig      `mapstructure:"consul" json:"consul"`
-	NacosInfo       NacosConfig       `mapstructure:"nacos" json:"nacos"`
 }
 
 type UserServiceConfig struct {

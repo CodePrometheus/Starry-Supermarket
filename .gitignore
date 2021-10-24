@@ -359,3 +359,5 @@ fabric.properties
 .idea/caches/build_file_checksums.ser
 
 shop-web/user-api/config.yaml
+/shop_services/user_service/nacos-data/
+/shop-web/user-api/tmp/
