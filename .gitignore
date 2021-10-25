@@ -358,5 +358,5 @@ fabric.properties
 # Android studio 3.1+ serialized cache file
 .idea/caches/build_file_checksums.ser
 
-/shop_services/user_service/nacos-data/
-/shop-web/user-api/tmp/
+/shop-web/tmp/
+shop_services/**/nacos-data

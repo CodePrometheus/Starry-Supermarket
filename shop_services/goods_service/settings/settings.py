@@ -18,10 +18,10 @@ def update_cfg(args):
 NACOS = {
     "Host": "localhost",
     "Port": 8848,
-    "NameSpace": "77a22bd7-4ce5-4af5-89f0-b427b6d6c55f",
+    "NameSpace": "52b1f242-d587-4544-8f51-2f9a4e5f6668",
     "User": "nacos",
     "Password": "nacos",
-    "DataId": "user_svs",
+    "DataId": "goods_svs",
     "Group": "dev"
 }
 

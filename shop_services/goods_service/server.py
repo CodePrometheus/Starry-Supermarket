@@ -14,9 +14,9 @@ from loguru import logger
 from shop_services.common_service.grpc_health.v1 import health
 from shop_services.common_service.grpc_health.v1 import health_pb2_grpc
 from shop_services.common_service.register import register
-from shop_services.user_service.handler.user import UserServicer
-from shop_services.user_service.proto import user_pb2_grpc
-from shop_services.user_service.settings import db
+from shop_services.goods_service.handler.goods import GoodsServicer
+from shop_services.goods_service.proto import goods_pb2_grpc
+from shop_services.goods_service.settings import settings as db
 
 BASE_DIR = os.path.dirname(os.path.abspath(os.path.dirname(__file__)))
 sys.path.insert(0, BASE_DIR)
@@ -34,7 +34,7 @@ def start():
     parser.add_argument('--port',
                         nargs="?",
                         type=int,
-                        default=9000,
+                        default=9001,
                         help="the listening port"
                         )
     args = parser.parse_args()
@@ -47,14 +47,14 @@ def start():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
 
     # 注册用户服务
-    user_pb2_grpc.add_UserServicer_to_server(UserServicer(), server)
+    goods_pb2_grpc.add_GoodsServicer_to_server(GoodsServicer(), server)
 
     # 注册健康检查
     health_pb2_grpc.add_HealthServicer_to_server(health.HealthServicer(), server)
 
     server.add_insecure_port(f"{args.ip}:{args.port}")
 
-    logger.add("logs/user_svs_{time}.log", rotation="2 MB", retention="1 hours")
+    logger.add("logs/goods_svs_{time}.log", rotation="2 MB", retention="1 hours")
 
     """
     主进程退出信号监听
